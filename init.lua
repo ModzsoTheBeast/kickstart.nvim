@@ -983,6 +983,25 @@ require('lazy').setup({
     keys = {
       { '<leader>gg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
     },
+    config = function()
+      -- Configure lazygit to use floating window
+      vim.g.lazygit_floating_window_winblend = 0 -- transparency of floating window
+      vim.g.lazygit_floating_window_scaling_factor = 0.9 -- scaling factor for floating window
+      vim.g.lazygit_floating_window_border_chars = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' } -- customize lazygit popup window border characters
+      vim.g.lazygit_floating_window_use_plenary = 0 -- use plenary.nvim to manage floating window if available
+      vim.g.lazygit_use_neovim_remote = 1 -- fallback to 0 if neovim-remote is not installed
+
+      -- Add autocmd to ensure terminal mode works properly
+      vim.api.nvim_create_autocmd('TermOpen', {
+        pattern = 'term://*lazygit',
+        callback = function()
+          -- Start in terminal mode
+          vim.cmd 'startinsert'
+          -- Remap q to properly close lazygit in this buffer
+          vim.keymap.set('t', 'q', '<cmd>close<cr>', { buffer = true, silent = true })
+        end,
+      })
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
