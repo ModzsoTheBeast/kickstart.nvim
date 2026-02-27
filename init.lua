@@ -904,7 +904,7 @@ require('lazy').setup({
         on_highlights = nil,
         on_colors = nil,
         palette = 'solarized', -- or 'selenized'
-        variant = 'winter', -- 'spring' | 'summer' | 'autumn' | 'winter' (winter is dark, spring is light)
+        variant = 'spring', -- 'spring' | 'summer' | 'autumn' | 'winter' (winter is dark, spring is light)
         error_lens = {
           text = false,
           symbol = false,
