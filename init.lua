@@ -882,20 +882,46 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    'maxmx03/solarized.nvim',
+    lazy = false, -- Load immediately at startup
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
-        styles = {
-          comments = { italic = false }, -- Disable italics in comments
+      -- Setup the theme first
+      vim.o.background = 'dark' -- or 'light' for light mode
+
+      require('solarized').setup {
+        transparent = {
+          enabled = false,
+          pmenu = false,
+          normal = false,
+          normalfloat = false,
+          neotree = false,
+          nvimtree = false,
+          whichkey = false,
+          telescope = false,
+          lazy = false,
+        },
+        on_highlights = nil,
+        on_colors = nil,
+        palette = 'solarized', -- or 'selenized'
+        variant = 'winter', -- 'spring' | 'summer' | 'autumn' | 'winter' (winter is dark, spring is light)
+        error_lens = {
+          text = false,
+          symbol = false,
         },
       }
 
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- Load the colorscheme after setup
+      vim.cmd.colorscheme 'solarized'
+
+      -- Optional: Add a keymap to toggle between light and dark variants
+      vim.keymap.set('n', '<leader>td', function()
+        if vim.o.background == 'dark' then
+          vim.o.background = 'light'
+        else
+          vim.o.background = 'dark'
+        end
+      end, { desc = '[T]oggle [D]ark/Light theme' })
     end,
   },
 
