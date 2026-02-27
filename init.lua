@@ -1004,6 +1004,186 @@ require('lazy').setup({
     end,
   },
 
+  { -- Markdown preview in browser
+    'iamcco/markdown-preview.nvim',
+    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    ft = { 'markdown' },
+    build = function()
+      vim.fn['mkdp#util#install']()
+    end,
+    keys = {
+      { '<leader>mp', '<cmd>MarkdownPreviewToggle<cr>', desc = '[M]arkdown [P]review Toggle', ft = 'markdown' },
+    },
+    config = function()
+      -- Set browser to open preview
+      -- vim.g.mkdp_browser = 'firefox' -- or 'chrome', 'chromium', etc.
+      vim.g.mkdp_auto_start = 0 -- Don't auto-start preview when opening markdown
+      vim.g.mkdp_auto_close = 1 -- Auto-close preview when leaving markdown buffer
+      vim.g.mkdp_refresh_slow = 0 -- Auto refresh on save/change
+      vim.g.mkdp_command_for_global = 0 -- Only available for markdown files
+      vim.g.mkdp_open_to_the_world = 0 -- Don't allow external access
+      vim.g.mkdp_open_ip = '127.0.0.1' -- Local only
+      vim.g.mkdp_echo_preview_url = 1 -- Echo preview URL
+      vim.g.mkdp_page_title = '${name}' -- Use filename as page title
+    end,
+  },
+
+  { -- Render markdown in Neovim buffer
+    'MeanderingProgrammer/render-markdown.nvim',
+    ft = { 'markdown' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+    opts = {
+      -- Character to use for the horizontal break
+      dash = '─',
+      -- Width of the buffer
+      max_width = 100,
+      -- Amount of empty lines to show between different headings
+      heading_spacing = 1,
+      -- Turn on / off code block backgrounds
+      code_style = 'full',
+      -- Highlight for code blocks
+      code_background = 'dark',
+    },
+    config = function(_, opts)
+      require('render-markdown').setup(opts)
+      -- Toggle render markdown with a keymap
+      vim.keymap.set('n', '<leader>mr', '<cmd>RenderMarkdown toggle<cr>', { desc = '[M]arkdown [R]ender Toggle' })
+    end,
+  },
+
+  { -- File explorer tree view
+    'nvim-neo-tree/neo-tree.nvim',
+    version = '*',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+      'MunifTanjim/nui.nvim',
+    },
+    cmd = 'Neotree',
+    keys = {
+      { '<leader>e', '<cmd>Neotree toggle<cr>', desc = 'Toggle File [E]xplorer' },
+      { '<leader>E', '<cmd>Neotree reveal<cr>', desc = 'Reveal File in [E]xplorer' },
+    },
+    opts = {
+      close_if_last_window = true, -- Close Neo-tree if it is the last window left in the tab
+      popup_border_style = 'rounded',
+      enable_git_status = true,
+      enable_diagnostics = true,
+      filesystem = {
+        follow_current_file = {
+          enabled = true, -- This will find and focus the file in the active buffer every time
+          leave_dirs_open = false, -- `false` closes auto expanded dirs, such as with `:Neotree reveal`
+        },
+        filtered_items = {
+          visible = false, -- when true, they will just be displayed differently than normal items
+          hide_dotfiles = false,
+          hide_gitignored = true,
+          hide_hidden = true, -- only works on Windows for hidden files/directories
+          hide_by_name = {
+            'node_modules',
+            '.git',
+            '.DS_Store',
+          },
+          always_show = { -- remains visible even if other settings would normally hide it
+            '.gitignored',
+            '.env',
+          },
+          never_show = { -- remains hidden even if visible is toggled to true, this overrides always_show
+            '.DS_Store',
+            'thumbs.db',
+          },
+        },
+        use_libuv_file_watcher = true, -- This will use the OS level file watchers to detect changes
+      },
+      window = {
+        position = 'left',
+        width = 35,
+        mapping_options = {
+          noremap = true,
+          nowait = true,
+        },
+        mappings = {
+          ['<space>'] = {
+            'toggle_node',
+            nowait = false, -- disable `nowait` if you have existing combos starting with this char that you want to use
+          },
+          ['<2-LeftMouse>'] = 'open',
+          ['<cr>'] = 'open',
+          ['<esc>'] = 'cancel', -- close preview or floating neo-tree window
+          ['P'] = { 'toggle_preview', config = { use_float = true, use_image_nvim = true } },
+          ['l'] = 'focus_preview',
+          ['S'] = 'open_split',
+          ['s'] = 'open_vsplit',
+          ['t'] = 'open_tabnew',
+          ['w'] = 'open_with_window_picker',
+          ['C'] = 'close_node',
+          ['z'] = 'close_all_nodes',
+          ['a'] = {
+            'add',
+            config = {
+              show_path = 'relative', -- "none", "relative", "absolute"
+            },
+          },
+          ['A'] = 'add_directory',
+          ['d'] = 'delete',
+          ['r'] = 'rename',
+          ['y'] = 'copy_to_clipboard',
+          ['x'] = 'cut_to_clipboard',
+          ['p'] = 'paste_from_clipboard',
+          ['c'] = 'copy', -- takes text input for destination, also accepts the optional config.show_path option like "add"
+          ['m'] = 'move', -- takes text input for destination, also accepts the optional config.show_path option like "add"
+          ['q'] = 'close_window',
+          ['R'] = 'refresh',
+          ['?'] = 'show_help',
+          ['<'] = 'prev_source',
+          ['>'] = 'next_source',
+          ['i'] = 'show_file_details',
+        },
+      },
+      default_component_configs = {
+        indent = {
+          indent_size = 2,
+          padding = 1,
+          with_markers = true,
+          indent_marker = '│',
+          last_indent_marker = '└',
+          highlight = 'NeoTreeIndentMarker',
+        },
+        icon = {
+          folder_closed = '',
+          folder_open = '',
+          folder_empty = '',
+          default = '',
+          highlight = 'NeoTreeFileIcon',
+        },
+        modified = {
+          symbol = '[+]',
+          highlight = 'NeoTreeModified',
+        },
+        name = {
+          trailing_slash = false,
+          use_git_status_colors = true,
+          highlight = 'NeoTreeFileName',
+        },
+        git_status = {
+          symbols = {
+            -- Change type
+            added = '✚', -- or "✚", but this is redundant info if you use git_status_colors on the name
+            modified = '', -- or "", but this is redundant info if you use git_status_colors on the name
+            deleted = '✖', -- this can only be used in the git_status source
+            renamed = '󰁕', -- this can only be used in the git_status source
+            -- Status type
+            untracked = '',
+            ignored = '',
+            unstaged = '󰄱',
+            staged = '',
+            conflict = '',
+          },
+        },
+      },
+    },
+  },
+
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
